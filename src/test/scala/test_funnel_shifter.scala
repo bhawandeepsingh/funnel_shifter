@@ -1,74 +1,65 @@
+// See README.md for license details.
+
+
 import chisel3._
-import chisel3.util._
-import chiseltest._
-import chisel3.tester.RawTester.test
+import chisel3.tester._
+import org.scalatest.FreeSpec
+import chisel3.experimental.BundleLiterals._
 
-class sync_fifo (mem_size : Int, in_word_size : Int) extends Module  
-{
-	val io = IO ( new Bundle 
-	{
-		val push = Input (Bool())
-		val pull = Input (Bool())
-		val data_in = Input(UInt(in_word_size.W)) 
-		val data_out = Output(UInt(in_word_size.W)) 
-		val full = Output(Bool())
-		val empty = Output(Bool())
-        
-        // temp - to be removed
-        val rp_port = Output(UInt((log2Ceil(mem_size) +1).W))
-        val wp_port = Output(UInt((log2Ceil(mem_size) +1).W))
-        // temp over
-	})
+/**
+  * This is a trivial example of how to run this Specification
+  * From within sbt use:
+  * {{{
+  * testOnly gcd.GcdDecoupledTester
+  * }}}
+  * From a terminal shell use:
+  * {{{
+  * sbt 'testOnly gcd.GcdDecoupledTester'
+  * }}}
+  */
 
-	val wp = RegInit(0.U((log2Ceil(mem_size) +1).W))
-	val rp = RegInit(0.U((log2Ceil(mem_size)+1).W))
+/*class funnel_shifter_Spec extends FreeSpec with ChiselScalatestTester {
 
-	val mem = Mem(mem_size, UInt(in_word_size.W))
+  "Gcd should calculate proper greatest common denominator" in {
+    test(new DecoupledGcd(16)) { dut =>
+      dut.input.initSource()
+      dut.input.setSourceClock(dut.clock)
+      dut.output.initSink()
+      dut.output.setSinkClock(dut.clock)
 
-	//wp := 0.U
-	//rp := 0.U
-    // temp - to be removed
-    io.rp_port := rp
-    io.wp_port := wp
-    // temp over
-    
-    io.data_out := 0.U
-	//full = 0.U
-	//empty = 1.U
+      val testValues = for { x <- 0 to 10; y <- 0 to 10} yield (x, y)
+      val inputSeq = testValues.map { case (x, y) => (new GcdInputBundle(16)).Lit(_.value1 -> x.U, _.value2 -> y.U) }
+      val resultSeq = testValues.map { case (x, y) =>
+        (new GcdOutputBundle(16)).Lit(_.value1 -> x.U, _.value2 -> y.U, _.gcd -> BigInt(x).gcd(BigInt(y)).U)
+      }
 
-	when(io.push && !(io.full))
-	{
-		mem(wp) := io.data_in
-		wp := wp + 1.U // Check 1 - + is expected to truncate
-	}
+      fork {
+        // push inputs into the calculator, stall for 11 cycles one third of the way
+        val (seq1, seq2) = inputSeq.splitAt(resultSeq.length / 3)
+        dut.input.enqueueSeq(seq1)
+        dut.clock.step(11)
+        dut.input.enqueueSeq(seq2)
+      }.fork {
+        // retrieve computations from the calculator, stall for 10 cycles one half of the way
+        val (seq1, seq2) = resultSeq.splitAt(resultSeq.length / 2)
+        dut.output.expectDequeueSeq(seq1)
+        dut.clock.step(10)
+        dut.output.expectDequeueSeq(seq2)
+      }.join()
 
-	when (io.pull && !(io.empty))
-	{
-		io.data_out := mem(rp)
-		rp := rp + 1.U // Check 2 - + is expected to truncate
-	}
-
-	when (wp === rp)
-	{
-		io.empty := 1.U
-	}
-	.otherwise
-	{
-		io.empty := 0.U
-	}
-
-	when ( ( wp(log2Ceil(mem_size)) =/= rp(log2Ceil(mem_size)) ) && ( wp(log2Ceil(mem_size)-1, 0) === rp(log2Ceil(mem_size)-1, 0) ) )
-	{
-		io.full := 1.U
-	}
-	.otherwise
-	{
-		io.full := 0.U
-	}
-
+    }
+  }
 }
+*/
 
+
+
+//def test_sync_fifo: Boolean = {
+class funnel_shifter_Spec extends FreeSpec with ChiselScalatestTester {
 def test_sync_fifo: Boolean = {
+
+//  "Sync fifo should work in" {
+
     test(new sync_fifo(4, 32)) { c =>
         //for (i <- 0 until 16) {
         //    for (j <- 0 until 16) {
@@ -167,8 +158,13 @@ def test_sync_fifo: Boolean = {
         //    }
        // }
     }
-    println(getVerilog(new sync_fifo(4, 32)))
+    //println(getVerilog(new sync_fifo(4, 32)))
     true
+	}
+	
+	"Sync fifo should work in" {
+	test_sync_fifo
+	}
 }
 
-assert(test_sync_fifo)
+//assert(test_sync_fifo)
