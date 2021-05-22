@@ -1,8 +1,13 @@
 # funnel_shifter
 funnel_shifter in chisel
 
-Chisel code working tested in jupyter notebook
+Chisel code for sync_fifo working tested in jupyter notebook
 The working jupyter notebook cell is pushed under model directory
+
+Chisel code for funnelshifter is partially complete.
+All simple portions, except those that deal with wrap around are done.
+Portions that deal with wrap around are remaining
+jupyter notebook code in model directory, once working will be ported to sbt/src/main`
 
 sbt WIP. 
 
