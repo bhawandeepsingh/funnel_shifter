@@ -56,9 +56,9 @@ import chisel3.experimental.BundleLiterals._
 
 //def test_sync_fifo: Boolean = {
 class funnel_shifter_Spec extends FreeSpec with ChiselScalatestTester {
-def test_sync_fifo: Boolean = {
+//def test_sync_fifo: Boolean = {
 
-//  "Sync fifo should work in" {
+"Sync fifo should work in" {
 
     test(new sync_fifo(4, 32)) { c =>
         //for (i <- 0 until 16) {
@@ -159,12 +159,12 @@ def test_sync_fifo: Boolean = {
        // }
     }
     //println(getVerilog(new sync_fifo(4, 32)))
-    true
+    //true
 	}
 	
-	"Sync fifo should work in" {
-	test_sync_fifo
-	}
+//	"Sync fifo should work in" {
+//	test_sync_fifo
+	//}
 }
 
 //assert(test_sync_fifo)
