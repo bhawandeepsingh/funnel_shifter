@@ -1,4 +1,5 @@
 
+
 class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) extends Module
 {
     val io = IO (new Bundle { 
@@ -64,6 +65,14 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     when (fifo_inst.io.pull)
     {
         buffer_wp := buffer_wp + in_word_size.U // Assuming truncation - Check 4
+        when ((buffer_wp +& in_word_size.U) <= (buffer_size-1).U ) // No wraparound
+        {
+            (buffer >> buffer_rp)(in_word_size - 1, 0) := fifo_inst.io.data_out
+        }
+        .otherwise // Wraparound
+        {
+            
+        }
     }
     
     // free_entries
@@ -79,10 +88,20 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     {
         free_entries := free_entries + out_word_size.U
     }
-    
-        
+       
     // data_out - handle wraparound
-    
+    when (io.pull && !(io.empty))
+    {
+        when ((buffer_rp +& out_word_size.U) <= (buffer_size-1).U ) // No wraparound
+        {
+            //io.data_out := buffer (buffer_rp + (out_word_size - 1).U, buffer_rp)
+            io.data_out := (buffer >> buffer_rp)(out_word_size - 1, 0)
+        }
+        .otherwise // Wraparound
+        {
+            
+        }
+    }
 }
 
 
