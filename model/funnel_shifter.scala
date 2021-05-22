@@ -67,7 +67,18 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     }
     
     // free_entries
-    // when ()
+    when ( fifo_inst.io.pull && (io.pull && !(io.empty) ) )
+    {
+        free_entries := free_entries - in_word_size.U + out_word_size.U
+    }
+    .elsewhen (fifo_inst.io.pull)
+    {
+        free_entries := free_entries - in_word_size.U
+    }
+    .elsewhen (io.pull && !(io.empty))
+    {
+        free_entries := free_entries + out_word_size.U
+    }
     
         
     // data_out - handle wraparound
