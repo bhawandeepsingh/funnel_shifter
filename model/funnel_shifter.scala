@@ -1,6 +1,20 @@
+/*class CombLogic extends Module {
+    val io = IO(new Bundle {
+        val a   = Input(Bool())
+        val b   = Input(Bool())
+        val c   = Input(Bool())
+        val out = Output(Bool())
+    })
+    
+    // YOUR CODE HERE
+    io.out := (io.a & io.b) | (~io.c)
+    
+    // We can print state like this everytime `step()` is called in our test
+    printf(p"a: ${io.a}, b: ${io.b}, c: ${io.c}, out: ${io.out}\n")
+}*/
 
 
-class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) extends Module
+class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, buffer_size : Int) extends Module
 {
     val io = IO (new Bundle { 
         val push = Input (Bool())
@@ -13,8 +27,8 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
         // temp 
         val mem_rp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
         val mem_wp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
-        val buffer_wp_port = Output (UInt(log2Ceil(buffer_size).W))
-        val buffer_rp_port = Output (UInt(log2Ceil(buffer_size).W))
+        val buffer_wp_port = Output (UInt(log2Ceil(buffer_size + 1).W))
+        val buffer_rp_port = Output (UInt(log2Ceil(buffer_size + 1).W))
     })
     
     io.data_out := 0.U
@@ -26,18 +40,19 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     io.mem_wp_port := fifo_inst.io.wp_port
     io.mem_rp_port := fifo_inst.io.rp_port
     
-    val buffer_size = in_word_size*4  // Can parameterize 4 if needed
+    //val buffer_size = in_word_size*4  // Can parameterize 4 if needed
     val buffer = RegInit(0.U(buffer_size.W)) 
     val free_entries = RegInit (buffer_size.U(log2Ceil(buffer_size).W))
-    val buffer_wp = RegInit (0.U(log2Ceil(buffer_size).W))
-    val buffer_rp = RegInit (0.U(log2Ceil(buffer_size).W))
+    //val filled_entries = RegInit (0.U(log2Ceil(buffer_size).W))
+    val buffer_wp = RegInit (0.U(log2Ceil(buffer_size + 1).W))
+    val buffer_rp = RegInit (0.U(log2Ceil(buffer_size + 1).W))
     
     //temp
     io.buffer_wp_port := buffer_wp
-    io.buffer_rp_port := buffer_rp
+    io.buffer_rp_port := buffer_rp 
     //temp over
     
-    when (free_entries < out_word_size.U)
+    when ( (buffer_size.U - free_entries) < out_word_size.U)
     {
         io.empty := 1.U
     }
@@ -64,10 +79,10 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     // wp and buffer_update - handle wraparound
     when (fifo_inst.io.pull)
     {
-        buffer_wp := buffer_wp + in_word_size.U // Assuming truncation - Check 4
+        buffer_wp := buffer_wp + in_word_size.U // Assuming truncation - Check 3
         when ((buffer_wp +& in_word_size.U) <= (buffer_size-1).U ) // No wraparound
         {
-            (buffer >> buffer_rp)(in_word_size - 1, 0) := fifo_inst.io.data_out
+            //buffer(buffer_wp + in_word_size.U - 1.U, buffer_wp) := fifo_inst.io.data_out
         }
         .otherwise // Wraparound
         {
@@ -94,18 +109,156 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int) e
     {
         when ((buffer_rp +& out_word_size.U) <= (buffer_size-1).U ) // No wraparound
         {
-            //io.data_out := buffer (buffer_rp + (out_word_size - 1).U, buffer_rp)
             io.data_out := (buffer >> buffer_rp)(out_word_size - 1, 0)
         }
         .otherwise // Wraparound
         {
-            
+            io.data_out := (buffer >> buffer_rp)(out_word_size - 1, 0) | (buffer << (buffer_size.U - buffer_rp))(out_word_size - 1, 0)
+            /*((buffer << ((buffer_size.U << 1.U) - out_word_size.U - buffer_rp)) >> (1.U))(out_word_size - 1, 0)*/
         }
     }
 }
 
 
 
+
+def test_funnel_shifter: Boolean = {
+    test(new funnel_shifter(4, 21, 9, 42)) { c =>
+        //for (i <- 0 until 16) {
+        //    for (j <- 0 until 16) {
+                c.io.full.expect(0.B)
+                c.io.empty.expect(1.B)
+
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                c.io.push.poke(1.B)
+                c.io.data_in.poke(1431655765.U)
+        
+                c.clock.step(1) // CC 1
+                
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                c.io.full.expect(0.B)
+                c.io.empty.expect(1.B)
+
+                println(s" ***************************** ")
+        
+                c.clock.step(1)  // CC 2
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+                c.io.empty.expect(0.B)
+				c.io.full.expect(0.B)
+        
+                c.clock.step(1) // CC 3
+				c.io.push.poke(0.B)
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                c.io.pull.poke(1.B)
+        
+                c.clock.step(1) // CC 4
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                c.io.full.expect(0.B)
+                
+                c.io.push.poke(0.B)
+        
+                //c.io.pull.poke(1.B)
+                //c.io.data_out.expect(20.U)
+                println(s" data_out:${c.io.data_out.peek()}")
+                //c.io.data_out.peek()
+                //println(s\"s data_out:${c.io.data_out.peek()} \")\n"
+                //println(s" data_out:${c.io.data_out.peek()}")
+        
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                c.clock.step(1)  // CC 5
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+                c.io.full.expect(0.B)
+        
+                //c.io.data_out.expect(20.U)
+                c.clock.step(1)  // CC 6
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                //c.io.data_out.expect(20.U)
+                c.clock.step(1)  // CC 7
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+        
+                //c.io.data_out.expect(20.U)
+                //c.io.empty.expect(1.B)
+                c.clock.step(1)  // CC 8
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+
+
+                 c.clock.step(1)  // CC 9
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+
+                c.clock.step(1)  // CC 10
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+                println(s" ***************************** ")
+				c.io.empty.expect(1.B)
+
+       
+                
+        //    }
+       // }
+    }
+    println(getVerilog(new funnel_shifter(4, 21, 9, 42)))
+    true
+}
+
+assert(test_funnel_shifter)
 
 
 
