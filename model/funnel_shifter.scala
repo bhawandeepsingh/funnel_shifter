@@ -27,8 +27,8 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
         // temp 
         val mem_rp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
         val mem_wp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
-        val buffer_wp_port = Output (UInt(log2Ceil(buffer_size + 1).W))
-        val buffer_rp_port = Output (UInt(log2Ceil(buffer_size + 1).W))
+        val buffer_wp_port = Output (UInt(log2Ceil(buffer_size).W))
+        val buffer_rp_port = Output (UInt(log2Ceil(buffer_size).W))
     })
     
     io.data_out := 0.U
@@ -44,8 +44,8 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     val buffer = RegInit(0.U(buffer_size.W)) 
     val free_entries = RegInit (buffer_size.U(log2Ceil(buffer_size).W))
     //val filled_entries = RegInit (0.U(log2Ceil(buffer_size).W))
-    val buffer_wp = RegInit (0.U(log2Ceil(buffer_size + 1).W))
-    val buffer_rp = RegInit (0.U(log2Ceil(buffer_size + 1).W))
+    val buffer_wp = RegInit (0.U(log2Ceil(buffer_size).W))
+    val buffer_rp = RegInit (0.U(log2Ceil(buffer_size).W))
     
     //temp
     io.buffer_wp_port := buffer_wp
@@ -73,13 +73,34 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     // rp
     when (io.pull && !(io.empty))
     {
-        buffer_rp := buffer_rp + out_word_size.U // Assuming truncation - Check 3
+        //buffer_rp := buffer_rp + out_word_size.U
+        when ( (buffer_rp +& out_word_size.U) <= (buffer_size -1).U)
+        {
+            buffer_rp := buffer_rp + out_word_size.U
+        }
+        .otherwise
+        {
+            buffer_rp := buffer_rp + out_word_size.U - buffer_size.U
+        }
     }
     
-    // wp and buffer_update - handle wraparound
+    // wp 
     when (fifo_inst.io.pull)
     {
-        buffer_wp := buffer_wp + in_word_size.U // Assuming truncation - Check 3
+        when ( (buffer_wp +& in_word_size.U) <= (buffer_size -1).U)
+        {
+            buffer_wp := buffer_wp + in_word_size.U
+        }
+        .otherwise
+        {
+            buffer_wp := buffer_wp + in_word_size.U - buffer_size.U
+        }
+    }
+    
+    
+    // buffer_update - handle wraparound
+    when (fifo_inst.io.pull)
+    {
         when ((buffer_wp +& in_word_size.U) <= (buffer_size-1).U ) // No wraparound
         {
             //buffer(buffer_wp + in_word_size.U - 1.U, buffer_wp) := fifo_inst.io.data_out
@@ -259,6 +280,4 @@ def test_funnel_shifter: Boolean = {
 }
 
 assert(test_funnel_shifter)
-
-
 

@@ -8,9 +8,9 @@ There is no scala model sine the module is more about timing and not very datapa
 So, a scala model may not help much as a proof of concept of the project but will take extra time away from the actual chisel module, will add later if/ when verification requires it.
 
 Chisel code for funnelshifter is partially complete.
-All simple portions, except those that deal with wrap around are done.
-Portions that deal with wrap around are remaining
-jupyter notebook code in model directory, once working will be ported to sbt/src/main`
+pointers working, reading addresses with and w/o wraparoud working, empty, full working, writing to buffer with and w/o wraparound left"
+
+jupyter notebook code in model directory, once sbt is working will be ported to sbt/src/main`
 
 sbt WIP. 
 
