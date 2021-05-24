@@ -30,6 +30,9 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
         val buffer_wp_port = Output (UInt(log2Ceil(buffer_size).W))
         val buffer_rp_port = Output (UInt(log2Ceil(buffer_size).W))
     })
+
+	require(buffer_size >= out_word_size)
+    require(buffer_size % in_word_size == 0)
     
     io.data_out := 0.U
     
@@ -99,17 +102,26 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     
     
     // buffer_update - handle wraparound
+    // buffer_input wire
+    //val buffer_in = Wire(UInt(buffer_size.W))
+    //buffer_in := buffer
     when (fifo_inst.io.pull)
     {
-        when ((buffer_wp +& in_word_size.U) <= (buffer_size-1).U ) // No wraparound
-        {
-            //buffer(buffer_wp + in_word_size.U - 1.U, buffer_wp) := fifo_inst.io.data_out
-        }
-        .otherwise // Wraparound
-        {
+        //when ((buffer_wp +& in_word_size.U - 1.U) <= (buffer_size-1).U ) // No wraparound
+        //{
+            buffer := ((buffer >> (buffer_wp + in_word_size.U)) << (buffer_wp + in_word_size.U)) | (fifo_inst.io.data_out << buffer_wp) | ((buffer << (buffer_size.U - buffer_wp)) >> (buffer_size.U - buffer_wp))
+        //}
+        //.otherwise // Wraparound
+        //{
             
-        }
+        //}
     }
+    
+    // buffer register
+    /*when (fifo_inst.io.pull)
+    {
+            buffer := buffer_in
+    }*/
     
     // free_entries
     when ( fifo_inst.io.pull && (io.pull && !(io.empty) ) )
@@ -150,126 +162,151 @@ def test_funnel_shifter: Boolean = {
                 c.io.full.expect(0.B)
                 c.io.empty.expect(1.B)
 
+                println(s" CC 0  ")
+        
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
-        
-                c.io.push.poke(1.B)
-                c.io.data_in.poke(1431655765.U)
-        
-                c.clock.step(1) // CC 1
                 
+                c.io.push.poke(1.B)
+                c.io.data_in.poke(1398101.U)
+        
+                println(s" Poked push and data ")
+        
+                println(s" ***************************** ")        
+                c.clock.step(1) // CC 1
+                println(s" CC 1  ")
+                
+                println(s" Data written to sync_fifo but not to buffer")    
+                //c.io.push.poke(1.B)
+                //c.io.data_in.poke(1398101.U)
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
                 c.io.full.expect(0.B)
                 c.io.empty.expect(1.B)
-
-                println(s" ***************************** ")
         
+                println(s" ***************************** ")        
                 c.clock.step(1)  // CC 2
+                println(s" CC 2  ")
+        
+                println(s" Data written to buffer") 
+                
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
+        
+                println(s" Pull not asserted yet")
+                println(s" data_out:${c.io.data_out.peek()}")
+        
                 c.io.empty.expect(0.B)
 				c.io.full.expect(0.B)
         
+                println(s" ***************************** ")
                 c.clock.step(1) // CC 3
-				c.io.push.poke(0.B)
+                println(s" CC 3  ")
+                c.io.push.poke(0.B)
+                println(s" Removed push ")        
+        
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
         
                 c.io.pull.poke(1.B)
+                println(s" Pull asserted ")
+                println(s" data_out:${c.io.data_out.peek()}")
         
+                println(s" ***************************** ")
                 c.clock.step(1) // CC 4
+                println(s" CC 4  ")
+        
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
         
                 c.io.full.expect(0.B)
-                
-                c.io.push.poke(0.B)
-        
-                //c.io.pull.poke(1.B)
-                //c.io.data_out.expect(20.U)
-                println(s" data_out:${c.io.data_out.peek()}")
-                //c.io.data_out.peek()
-                //println(s\"s data_out:${c.io.data_out.peek()} \")\n"
-                //println(s" data_out:${c.io.data_out.peek()}")
-        
-        
-                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
-                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+  
                 println(s" ***************************** ")
-        
                 c.clock.step(1)  // CC 5
+                println(s" CC 5  ")
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
+
                 c.io.full.expect(0.B)
-        
-                //c.io.data_out.expect(20.U)
+  
+                println(s" ***************************** ")
                 c.clock.step(1)  // CC 6
+                println(s" CC 6  ")
+        
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
         
-                //c.io.data_out.expect(20.U)
+                println(s" ***************************** ")
                 c.clock.step(1)  // CC 7
-                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
-                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
+                println(s" CC 7  ")
         
-                //c.io.data_out.expect(20.U)
-                //c.io.empty.expect(1.B)
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" full:${c.io.full.peek()}")
+                println(s" empty:${c.io.empty.peek()}")
+        
+                println(s" ***************************** ")
                 c.clock.step(1)  // CC 8
+                println(s" CC 8  ")
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
+        
                 println(s" ***************************** ")
-
-
-                 c.clock.step(1)  // CC 9
+                c.clock.step(1)  // CC 9
+                println(s" CC 9  ")
+                
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
+        
                 println(s" ***************************** ")
-
                 c.clock.step(1)  // CC 10
+                println(s" CC 10  ")
+                
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
                 println(s" data_out:${c.io.data_out.peek()}")
                 println(s" full:${c.io.full.peek()}")
                 println(s" empty:${c.io.empty.peek()}")
-                println(s" ***************************** ")
+                
 				c.io.empty.expect(1.B)
-
+                println(s" *Test still has pull asserted, empty should be asserted")
+                println(s" ***************************** ")
        
                 
         //    }
