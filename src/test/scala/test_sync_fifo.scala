@@ -6,6 +6,8 @@ import chisel3.tester._
 import org.scalatest._
 import org.scalatest.FreeSpec
 import chisel3.experimental.BundleLiterals._
+import treadle._
+
 //import chisel3.iotesters.PeekPokeTester
 
 /**
@@ -56,7 +58,9 @@ import chisel3.experimental.BundleLiterals._
 
 
 
-class Tester (c: sync_fifo ) extends PeekPokeTester(c) {		
+class funnel_shifter_Spec extends FreeSpec with ChiselScalatestTester {
+	def test_sync_fifo : Boolean = {
+		test(new sync_fifo (4, 21)) { c => 
 		        c.io.full.expect(0.B)
                 c.io.empty.expect(1.B)
 
@@ -150,17 +154,13 @@ class Tester (c: sync_fifo ) extends PeekPokeTester(c) {
         
                 c.io.empty.expect(1.B)
             }
-       // }
+		true
+        }
 
-class funnel_shifter_Spec extends FreeSpec with ChiselScalatestTester 
-{
-	"Sync fifo should work in" 
-	{
-		chisel3.iotesters.Driver (() => new sync_fifo (4,32)) 
-		{ a =>
-			new Tester (a)
-		} should be (true)
+	"Synchronous fifo must work ''" in {
+        test_sync_fifo
 	}
+
 }
 
 //assert(test_sync_fifo)

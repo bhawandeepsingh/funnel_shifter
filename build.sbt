@@ -1,14 +1,12 @@
 // See README.md for license details.
 
 // libraryDependencies += "org. scalatest " %% " scalatest " % "3.0.5"
-% "test"
+//% "test"
 
 ThisBuild / scalaVersion     := "2.12.13"
 ThisBuild / version          := "0.1.0"
 ThisBuild / organization     := "%ORGANIZATION%"
 
-lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
-libraryDependencies ++= scalatest
 
 lazy val root = (project in file("."))
   .settings(
@@ -27,6 +25,11 @@ lazy val root = (project in file("."))
       "-P:chiselplugin:useBundlePlugin"
     ),
     addCompilerPlugin("edu.berkeley.cs" % "chisel3-plugin" % "3.4.3" cross CrossVersion.full),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
+    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full),
+
+//	lazy val scalatest = "org.scalatest" %% "scalatest" % "3.0.5"
+//	libraryDependencies ++= scalatest
   )
+
+
 

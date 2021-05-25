@@ -1,10 +1,13 @@
 # funnel_shifter
 funnel_shifter in chisel
 
-Chisel code for funnel shifter using a synchronous fifo working tested in jupyter notebook
+Chisel code for funnel shifter using a synchronous fifo working tested in jupyter notebook and sbt
+
+The working files for design and testing of funnel_shifter and sync_fifo and  pushed under src/main/scala and src/test/scala, respectively.
+
 The working jupyter notebook cells for design and testing of funnel_shifter and sync_fifo and  pushed under model directory
 
-There is no scala model sine the module is more about timing and not very datapath intensive.
+There is no scala model since the module is more about timing and not very datapath intensive.
 So, a scala model may not help much as a proof of concept of the project but will take extra time away from the actual chisel module, will add later if/ when verification requires it.
 
 Chisel code for funnel_shifter is fully complete.
@@ -12,10 +15,7 @@ Write and read side widths are parameterizable, any of the two can be bigger by 
 
 pointers have been left as top level ports to ease testing, but are easy to comment out
 
-jupyter notebook code in model directory, once sbt is working will be ported to sbt/src/main`
+To run, from inside the funnel_shifter directory (where build.sbt is present), type - 
+sbt main
 
-sbt WIP. 
-
-Till a commit message says "sbt tested", please just ignore the gcd reference files and just copy the -> "funnel_shifter/src/main/scala/gcd/funnel_shifter.scala" into a jupyter notebook to test circuit functionality. 
-
-sbt WIP.
+This will run one test on sync_fifo and one test on funnel_shifter

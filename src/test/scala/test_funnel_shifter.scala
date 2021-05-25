@@ -3,13 +3,16 @@ import chisel3.tester._
 import org.scalatest._
 import org.scalatest.FreeSpec
 import chisel3.experimental.BundleLiterals._
+import treadle._
+//import chisel3.iotesters._
 
-
-
-def test_funnel_shifter: Boolean = {
-    test(new funnel_shifter(4, 21, 9, 42)) { c =>
-        //for (i <- 0 until 16) {
-        //    for (j <- 0 until 16) {
+//def test_funnel_shifter: Boolean = {
+ //   test(new funnel_shifter(4, 21, 9, 42)) { c =>
+   
+class TesterSimple extends FreeSpec with ChiselScalatestTester {
+    //PeekPokeTester (c) {  
+	def test_funnel_shifter : Boolean = {
+		test(new funnel_shifter (4, 21, 9, 42)) { c => 
                 c.io.full.expect(0.B)
                 c.io.empty.expect(1.B)
 
@@ -157,14 +160,13 @@ def test_funnel_shifter: Boolean = {
                 
 				c.io.empty.expect(1.B)
                 println(s" *Test still has pull asserted, empty should be asserted")
-                println(s" ***************************** ")
-       
-                
-        //    }
-       // }
+                println(s" ***************************** ")                
+        }
+       true
     }
-    println(getVerilog(new funnel_shifter(4, 21, 9, 42)))
-    true
-}
 
-assert(test_funnel_shifter)
+	    "FUnnel shifter must work ''" in {
+        test_funnel_shifter
+    }
+
+}
