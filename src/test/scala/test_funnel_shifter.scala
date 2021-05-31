@@ -217,7 +217,7 @@ def test_funnel_shifter_full : Boolean = {
 
 
 /**********************************************************************************************************************************************/
-
+/*
 def test_funnel_shifter_1 : Boolean = {
 		test(new funnel_shifter (3, 37, 11, 74)) { c =>
 
@@ -704,7 +704,7 @@ def test_funnel_shifter_1 : Boolean = {
 	    "Funnelshifter in.ready must work ''" in {
         test_funnel_shifter_1
     }
-
+*/
 
 
 /********************************************************************************************************************************************/  
@@ -866,5 +866,166 @@ def test_funnel_shifter_1 : Boolean = {
         test_funnel_shifter_0
     }
 */
+
+
+/************************************************************************************************************************************************************************/
+
+def test_funnel_shifter_input_narrower : Boolean = {
+		test(new funnel_shifter (5, 3, 13, 30)) { c => 
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
+
+                println(s" CC 0  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                
+                c.io.in.valid.poke(1.B)
+                c.io.in.bits.poke(1.U)
+				c.io.out.ready.poke(1.B)
+
+        
+                println(s" Poked in.valid and data ")
+        
+                println(s" ***************************** ")        
+                c.clock.step(1) // CC 1
+                println(s" CC 1  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+
+        
+                println(s" ***************************** ")        
+                c.clock.step(1)  // CC 2
+                println(s" CC 2  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1) // CC 3
+                println(s" CC 3  ")
+
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1) // CC 4
+                println(s" CC 4  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+  
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 5
+                println(s" CC 5  ")
+
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+  
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 6
+                println(s" CC 6  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 7
+                println(s" CC 7  ")
+        
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 8
+                println(s" CC 8  ")
+
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 9
+                println(s" CC 9  ")
+                
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+        
+                println(s" ***************************** ")
+                c.clock.step(1)  // CC 10
+                println(s" CC 10  ")
+                
+                println(s" mem_wp:${c.io.mem_wp_port.peek()}")
+				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
+                println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
+                println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                
+
+                println(s" ***************************** ")                
+        }
+       true
+    }
+
+	    "Fnnel shifter must work ''" in {
+        test_funnel_shifter_input_narrower
+    }
+
+
+
+
+
+
 }
 
