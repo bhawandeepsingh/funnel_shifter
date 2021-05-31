@@ -39,13 +39,27 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 	when(io.push && !(io.full))
 	{
 		mem(wp) := io.data_in
-		wp := wp + 1.U // Check 1 - + is expected to truncate
+		when ( (wp(log2Ceil(mem_size)-1, 0) +& 1.U) <= (mem_size -1).U)
+        {
+            wp := wp + 1.U
+        }
+        .otherwise
+        {
+			wp := Cat( ~wp(log2Ceil(mem_size)), 0.U((log2Ceil(mem_size)).W))
+        }
 	}
 
 	when (io.pull && !(io.empty))
 	{
 		io.data_out := mem(rp)
-		rp := rp + 1.U // Check 2 - + is expected to truncate
+		when ( (rp(log2Ceil(mem_size)-1, 0) +& 1.U) <= (mem_size -1).U)
+        {
+            rp := rp + 1.U
+        }
+        .otherwise
+        {
+			rp := Cat( ~rp(log2Ceil(mem_size)), 0.U((log2Ceil(mem_size)).W))
+        }
 	}
 
 	when (wp === rp)
@@ -70,9 +84,6 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 
 
 
-
-
-
 class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, buffer_size : Int) extends Module
 {
     val io = IO (new Bundle { 
@@ -88,6 +99,8 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
         val mem_wp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
         val buffer_wp_port = Output (UInt(log2Ceil(buffer_size).W))
         val buffer_rp_port = Output (UInt(log2Ceil(buffer_size).W))
+		val free_entries_port = Output (UInt(log2Ceil(buffer_size).W))
+
     })
     require(buffer_size >= out_word_size)
     require(buffer_size % in_word_size == 0)
@@ -98,19 +111,22 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     fifo_inst.io.push := io.push
     fifo_inst.io.data_in := io.data_in
     io.full := fifo_inst.io.full
-    io.mem_wp_port := fifo_inst.io.wp_port
-    io.mem_rp_port := fifo_inst.io.rp_port
+
     
     //val buffer_size = in_word_size*4  // Can parameterize 4 if needed
     val buffer = RegInit(0.U(buffer_size.W)) 
+
     val free_entries = RegInit (buffer_size.U(log2Ceil(buffer_size).W))
     //val filled_entries = RegInit (0.U(log2Ceil(buffer_size).W))
     val buffer_wp = RegInit (0.U(log2Ceil(buffer_size).W))
     val buffer_rp = RegInit (0.U(log2Ceil(buffer_size).W))
     
     //temp
+    io.mem_wp_port := fifo_inst.io.wp_port
+    io.mem_rp_port := fifo_inst.io.rp_port
     io.buffer_wp_port := buffer_wp
     io.buffer_rp_port := buffer_rp 
+	io.free_entries_port := free_entries
     //temp over
     
     when ( (buffer_size.U - free_entries) < out_word_size.U)
@@ -126,6 +142,10 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     {
         fifo_inst.io.pull := 1.U
     }
+	.elsewhen (  (free_entries + out_word_size.U >= in_word_size.U) && io.pull  && !(fifo_inst.io.empty) )
+	{
+		fifo_inst.io.pull := 1.U
+	}
     .otherwise
     {
         fifo_inst.io.pull := 0.U
