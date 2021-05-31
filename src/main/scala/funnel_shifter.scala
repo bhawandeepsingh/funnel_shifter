@@ -87,12 +87,14 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, buffer_size : Int) extends Module
 {
     val io = IO (new Bundle { 
-        val push = Input (Bool())
-		val pull = Input (Bool())
-		val data_in = Input(UInt(in_word_size.W)) 
-		val data_out = Output(UInt(out_word_size.W)) 
-		val full = Output(Bool())
-		val empty = Output(Bool())
+        //val push = Input (Bool())
+		//val pull = Input (Bool())
+		//val data_in = Input(UInt(in_word_size.W)) 
+		//val data_out = Output(UInt(out_word_size.W)) 
+		//val full = Output(Bool())
+		//val empty = Output(Bool())
+		val in = Flipped(Decoupled (UInt(in_word_size.W)))
+		val out = Decoupled (UInt(out_word_size.W))
         
         // temp 
         val mem_rp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
@@ -104,13 +106,27 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     })
     require(buffer_size >= out_word_size)
     require(buffer_size % in_word_size == 0)
+
+	val push = Wire (Bool())
+	val data_in = Wire(UInt(in_word_size.W)) 
+	val full = Wire(UInt(1.W))
+	push := io.in.valid
+	data_in := io.in.bits
+	io.in.ready := ~full
+
+	val pull = Wire (Bool())
+	val data_out = Wire(UInt(out_word_size.W)) 
+	val empty = Wire(UInt(1.W))
+	pull := io.out.ready
+	io.out.bits := data_out
+	io.out.valid := ~empty
     
-    io.data_out := 0.U
+    data_out := 0.U
     
     val fifo_inst = Module(new sync_fifo(mem_size, in_word_size))
-    fifo_inst.io.push := io.push
-    fifo_inst.io.data_in := io.data_in
-    io.full := fifo_inst.io.full
+    fifo_inst.io.push := push
+    fifo_inst.io.data_in := data_in
+    full := fifo_inst.io.full
 
     
     //val buffer_size = in_word_size*4  // Can parameterize 4 if needed
@@ -131,18 +147,18 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     
     when ( (buffer_size.U - free_entries) < out_word_size.U)
     {
-        io.empty := 1.U
+        empty := 1.U
     }
     .otherwise
     {
-        io.empty := 0.U
+        empty := 0.U
     }
     
     when ( (free_entries >= in_word_size.U) && !(fifo_inst.io.empty) ) // Do not assert pull if sync_fifo is empty
     {
         fifo_inst.io.pull := 1.U
     }
-	.elsewhen (  (free_entries + out_word_size.U >= in_word_size.U) && io.pull  && !(fifo_inst.io.empty) )
+	.elsewhen (  (free_entries + out_word_size.U >= in_word_size.U) && pull  && !(fifo_inst.io.empty) )
 	{
 		fifo_inst.io.pull := 1.U
 	}
@@ -152,7 +168,7 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     }
     
     // rp
-    when (io.pull && !(io.empty))
+    when (pull && !(empty))
     {
         //buffer_rp := buffer_rp + out_word_size.U
         when ( (buffer_rp +& out_word_size.U) <= (buffer_size -1).U)
@@ -202,7 +218,7 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     }*/
     
     // free_entries
-    when ( fifo_inst.io.pull && (io.pull && !(io.empty) ) )
+    when ( fifo_inst.io.pull && (pull && !(empty) ) )
     {
         free_entries := free_entries - in_word_size.U + out_word_size.U
     }
@@ -210,21 +226,21 @@ class funnel_shifter (mem_size : Int, in_word_size : Int, out_word_size : Int, b
     {
         free_entries := free_entries - in_word_size.U
     }
-    .elsewhen (io.pull && !(io.empty))
+    .elsewhen (pull && !(empty))
     {
         free_entries := free_entries + out_word_size.U
     }
        
     // data_out - handle wraparound
-    when (io.pull && !(io.empty))
+    when (pull && !(empty))
     {
         when ((buffer_rp +& out_word_size.U) <= (buffer_size-1).U ) // No wraparound
         {
-            io.data_out := (buffer >> buffer_rp)(out_word_size - 1, 0)
+            data_out := (buffer >> buffer_rp)(out_word_size - 1, 0)
         }
         .otherwise // Wraparound
         {
-            io.data_out := (buffer >> buffer_rp)(out_word_size - 1, 0) | (buffer << (buffer_size.U - buffer_rp))(out_word_size - 1, 0)
+            data_out := (buffer >> buffer_rp)(out_word_size - 1, 0) | (buffer << (buffer_size.U - buffer_rp))(out_word_size - 1, 0)
             /*((buffer << ((buffer_size.U << 1.U) - out_word_size.U - buffer_rp)) >> (1.U))(out_word_size - 1, 0)*/
         }
     }

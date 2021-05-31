@@ -12,23 +12,23 @@ import treadle._
 class TesterSimple extends FreeSpec with ChiselScalatestTester {
     //PeekPokeTester (c) {
 
-/*	def test_funnel_shifter_fifo_empty : Boolean = {
+/*	def test_funnel_shifter_empty : Boolean = {
 		test(new funnel_shifter (4, 37, 11, 74)) { c => 
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
 
                 println(s" CC 0  ")
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
                 
-                c.io.push.poke(1.B)
-                c.io.data_in.poke(1398101.U)
+                c.io.in.valid.poke(1.B)
+                c.io.in.bits.poke(1398101.U)
         
-                println(s" Poked push and data ")
+                println(s" Poked in.valid and data ")
         
                 println(s" ***************************** ")        
                 c.clock.step(1) // CC 1
@@ -37,16 +37,16 @@ class TesterSimple extends FreeSpec with ChiselScalatestTester {
                 println(s" Data written to sync_fifo but not to buffer")  
 	  			println(s" Empty must still be asserted")  
 
-                //c.io.push.poke(1.B)
-                //c.io.data_in.poke(1398101.U)
+                //c.io.in.valid.poke(1.B)
+                //c.io.in.bits.poke(1398101.U)
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
         
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 2
@@ -58,16 +58,16 @@ class TesterSimple extends FreeSpec with ChiselScalatestTester {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
                       
         }
        true
     }
 
-	    "Funnel shifter initially and for 1CC after a write, empty must work ''" in {
-        test_funnel_shifter_fifo_empty
+	    "Funnel shifter initially and for 1CC after a write, out.valid must work ''" in {
+        test_funnel_shifter_empty
     }
 */
 
@@ -83,8 +83,8 @@ def test_funnel_shifter_full : Boolean = {
 				c.io.buffer_wp_port.expect(0.U)
                 c.io.buffer_rp_port.expect(0.U)
  
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
 
                 println(s" CC 0  ")
         
@@ -92,14 +92,14 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				
                 
-                c.io.push.poke(1.B)
-                c.io.data_in.poke(1398101.U)
+                c.io.in.valid.poke(1.B)
+                c.io.in.bits.poke(1398101.U)
         
-                println(s" Poked push and data ")
+                println(s" Poked in.valid and data ")
         
                 println(s" ***************************** ")        
                 c.clock.step(1) // CC 1
@@ -118,10 +118,10 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
         
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 2
@@ -140,9 +140,9 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
 
@@ -160,11 +160,11 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
-				println(s" Buffer should be full i.e. free entries = 0 ")
+				println(s" Buffer should be in.ready i.e. free entries = 0 ")
 
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 4
@@ -180,10 +180,10 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
                 println(s" ***************************** ")        
@@ -199,19 +199,19 @@ def test_funnel_shifter_full : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B)        
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B)        
         }
        true
     }
 
-	    "Funnelshifter full must work ''" in {
+	    "Funnelshifter in.ready must work ''" in {
         test_funnel_shifter_full
     }
-
 */
+
 
 
 
@@ -226,8 +226,8 @@ def test_funnel_shifter_1 : Boolean = {
 				c.io.buffer_wp_port.expect(0.U)
                 c.io.buffer_rp_port.expect(0.U)
  
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
 
                 println(s" CC 0  ")
         
@@ -235,14 +235,14 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				
                 
-                c.io.push.poke(1.B)
-                c.io.data_in.poke(1398101.U)
+                c.io.in.valid.poke(1.B)
+                c.io.in.bits.poke(1398101.U)
         
-                println(s" Poked push and data ")
+                println(s" Poked in.valid and data ")
         
                 println(s" ***************************** ")        
                 c.clock.step(1) // CC 1
@@ -261,10 +261,10 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
         
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 2
@@ -283,9 +283,9 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
 
@@ -303,11 +303,11 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
-				println(s" Buffer should be full i.e. free entries = 0 ")
+				println(s" Buffer should be in.ready i.e. free entries = 0 ")
 
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 4
@@ -323,10 +323,10 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
                 println(s" ***************************** ")        
@@ -342,22 +342,22 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B) 
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B) 
 
-				c.io.push.poke(0.B)    
-				println(s" Push deasserted, Funnel shifter full , 5 entries total  ")
+				c.io.in.valid.poke(0.B)    
+				println(s" Push deasserted, Funnel shifter in.ready , 5 entries total  ")
 
  				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 6
                 println(s" CC 6  ")
 
 				println(s" Pull asserted ")
-				c.io.pull.poke (1.B)
+				c.io.out.ready.poke (1.B)
 				
 				c.io.mem_wp_port.expect(6.U)
                 c.io.mem_rp_port.expect(2.U)
@@ -368,12 +368,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B)
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B)
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 7
@@ -388,12 +388,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B)
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B)
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 8
@@ -408,12 +408,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B)
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B)
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 9
@@ -428,12 +428,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(1.B)  
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(0.B)  
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 10
@@ -448,12 +448,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 11
@@ -468,12 +468,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 12
@@ -488,12 +488,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)  
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)  
  
  				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 13
@@ -508,12 +508,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)   
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)   
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 14
@@ -528,12 +528,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)  
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)  
 
 
 				println(s" ***************************** ")        
@@ -549,12 +549,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B) 
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B) 
 
 
 				println(s" ***************************** ")        
@@ -570,12 +570,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)  
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)  
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 17
@@ -590,12 +590,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)    
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)    
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 18
@@ -610,12 +610,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B) 
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B) 
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 19
@@ -630,12 +630,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)    
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)    
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 20
@@ -650,12 +650,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B) 
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B) 
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 21
@@ -670,12 +670,12 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)    
+        		c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)    
 
 				println(s" ***************************** ")        
                 c.clock.step(1)  // CC 22
@@ -690,18 +690,18 @@ def test_funnel_shifter_1 : Boolean = {
 				println(s" mem_rp:${c.io.mem_rp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 				println(s" free entries:${c.io.free_entries_port.peek()}")
 
-        		c.io.empty.expect(1.B)
-				c.io.full.expect(0.B)  
+        		c.io.out.valid.expect(0.B)
+				c.io.in.ready.expect(1.B)  
   
         }
        true
     }
 
-	    "Funnelshifter full must work ''" in {
+	    "Funnelshifter in.ready must work ''" in {
         test_funnel_shifter_1
     }
 
@@ -710,37 +710,37 @@ def test_funnel_shifter_1 : Boolean = {
 /********************************************************************************************************************************************/  
 /*	def test_funnel_shifter_0 : Boolean = {
 		test(new funnel_shifter (4, 21, 9, 42)) { c => 
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
 
                 println(s" CC 0  ")
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
                 
-                c.io.push.poke(1.B)
-                c.io.data_in.poke(1398101.U)
+                c.io.in.valid.poke(1.B)
+                c.io.in.bits.poke(1398101.U)
         
-                println(s" Poked push and data ")
+                println(s" Poked in.valid and data ")
         
                 println(s" ***************************** ")        
                 c.clock.step(1) // CC 1
                 println(s" CC 1  ")
                 
                 println(s" Data written to sync_fifo but not to buffer")    
-                //c.io.push.poke(1.B)
-                //c.io.data_in.poke(1398101.U)
+                //c.io.in.valid.poke(1.B)
+                //c.io.in.bits.poke(1398101.U)
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
-                c.io.full.expect(0.B)
-                c.io.empty.expect(1.B)
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
+                c.io.in.ready.expect(1.B)
+                c.io.out.valid.expect(0.B)
         
                 println(s" ***************************** ")        
                 c.clock.step(1)  // CC 2
@@ -751,30 +751,30 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
                 println(s" Pull not asserted yet")
-                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
         
-                c.io.empty.expect(0.B)
-				c.io.full.expect(0.B)
+                c.io.out.valid.expect(1.B)
+				c.io.in.ready.expect(1.B)
         
                 println(s" ***************************** ")
                 c.clock.step(1) // CC 3
                 println(s" CC 3  ")
-                c.io.push.poke(0.B)
-                println(s" Removed push ")        
+                c.io.in.valid.poke(0.B)
+                println(s" Removed in.valid ")        
         
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
-                c.io.pull.poke(1.B)
+                c.io.out.ready.poke(1.B)
                 println(s" Pull asserted ")
-                println(s" data_out:${c.io.data_out.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
         
                 println(s" ***************************** ")
                 c.clock.step(1) // CC 4
@@ -783,11 +783,11 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
-                c.io.full.expect(0.B)
+                c.io.in.ready.expect(1.B)
   
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 5
@@ -795,11 +795,11 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
 
-                c.io.full.expect(0.B)
+                c.io.in.ready.expect(1.B)
   
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 6
@@ -808,9 +808,9 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 7
@@ -819,9 +819,9 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 8
@@ -829,9 +829,9 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 9
@@ -840,9 +840,9 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
                 println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
         
                 println(s" ***************************** ")
                 c.clock.step(1)  // CC 10
@@ -851,20 +851,20 @@ def test_funnel_shifter_1 : Boolean = {
                 println(s" mem_wp:${c.io.mem_wp_port.peek()}")
 				println(s" buf_wp:${c.io.buffer_wp_port.peek()}")
                 println(s" buf_rp:${c.io.buffer_rp_port.peek()}")
-                println(s" data_out:${c.io.data_out.peek()}")
-                println(s" full:${c.io.full.peek()}")
-                println(s" empty:${c.io.empty.peek()}")
+                println(s" out.bits:${c.io.out.bits.peek()}")
+                println(s" in.ready:${c.io.in.ready.peek()}")
+                println(s" out.valid:${c.io.out.valid.peek()}")
                 
-				c.io.empty.expect(1.B)
-                println(s" *Test still has pull asserted, empty should be asserted")
+				c.io.out.valid.expect(0.B)
+                println(s" *Test still has out.ready asserted, out.valid should be asserted")
                 println(s" ***************************** ")                
         }
        true
     }
 
-	    "FUnnel shifter must work ''" in {
+	    "Fnnel shifter must work ''" in {
         test_funnel_shifter_0
-    }*/
-
+    }
+*/
 }
 
