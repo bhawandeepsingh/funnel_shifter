@@ -15,20 +15,20 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 		val full = Output(Bool())
 		val empty = Output(Bool())
         
-        // temp 
-        val rp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
-        val wp_port = Output(UInt((log2Ceil(mem_size) + 1).W))
+        // temp - to be removed
+        val rp_port = Output(UInt((log2Ceil(mem_size) +1).W))
+        val wp_port = Output(UInt((log2Ceil(mem_size) +1).W))
         // temp over
 	})
 
-	val wp = RegInit(0.U((log2Ceil(mem_size) + 1).W))
-	val rp = RegInit(0.U((log2Ceil(mem_size) + 1).W))
+	val wp = RegInit(0.U((log2Ceil(mem_size) +1).W))
+	val rp = RegInit(0.U((log2Ceil(mem_size)+1).W))
 
 	val mem = Mem(mem_size, UInt(in_word_size.W))
 
 	//wp := 0.U
 	//rp := 0.U
-    // temp 
+    // temp - to be removed
     io.rp_port := rp
     io.wp_port := wp
     // temp over
@@ -40,13 +40,27 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 	when(io.push && !(io.full))
 	{
 		mem(wp) := io.data_in
-		wp := wp + 1.U // Check 1 - + is expected to truncate
+		when ( (wp(log2Ceil(mem_size)-1, 0) +& 1.U) <= (mem_size -1).U)
+        {
+            wp := wp + 1.U
+        }
+        .otherwise
+        {
+			wp := Cat( ~wp(log2Ceil(mem_size)), 0.U((log2Ceil(mem_size)).W))
+        }
 	}
 
 	when (io.pull && !(io.empty))
 	{
 		io.data_out := mem(rp)
-		rp := rp + 1.U // Check 2 - + is expected to truncate
+		when ( (rp(log2Ceil(mem_size)-1, 0) +& 1.U) <= (mem_size -1).U)
+        {
+            rp := rp + 1.U
+        }
+        .otherwise
+        {
+			rp := Cat( ~rp(log2Ceil(mem_size)), 0.U((log2Ceil(mem_size)).W))
+        }
 	}
 
 	when (wp === rp)
@@ -68,6 +82,7 @@ class sync_fifo (mem_size : Int, in_word_size : Int) extends Module
 	}
 
 }
+
 
 
 
